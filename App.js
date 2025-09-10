@@ -8,6 +8,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./LoginScreen";
 import RegisterScreen from "./RegisterScreen";
 import MonitorScreen from "./MonitorScreen";
+import HomeScreen from "./HomeScreen";
+import ProfileScreen from "./ProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +30,11 @@ export default function App() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLogout = async () => {
+        await AsyncStorage.removeItem("token");
+        setIsLoggedIn(false);
     };
 
     if (loading) {
@@ -63,18 +70,20 @@ export default function App() {
                         </Stack.Screen>
                     </>
                 ) : (
-                    <Stack.Screen name="Monitor">
-                        {props => (
-                            <MonitorScreen
-                                {...props}
-                                onLogout={async () => {
-                                    await AsyncStorage.removeItem("token");
-                                    setIsLoggedIn(false); // Login ekranına otomatik geçiş
-                                    // props.navigation.replace("Login"); artık gerek yok
-                                }}
-                            />
-                        )}
-                    </Stack.Screen>
+                    <>
+                        {/* İlk girişte artık HomeScreen açılacak */}
+                        <Stack.Screen name="Home">
+                            {props => <HomeScreen {...props} onLogout={handleLogout} />}
+                        </Stack.Screen>
+
+                        <Stack.Screen name="Monitor">
+                            {props => <MonitorScreen {...props} />}
+                        </Stack.Screen>
+
+                        <Stack.Screen name="Profile">
+                            {props => <ProfileScreen {...props} onLogout={handleLogout} />}
+                        </Stack.Screen>
+                    </>
                 )}
             </Stack.Navigator>
         </NavigationContainer>
